@@ -87,7 +87,6 @@ body {
 body.no-scroll {
   overflow: hidden;
   height: 100vh;
-  position: fixed;
   width: 100%;
 }
 
@@ -627,6 +626,15 @@ body.no-scroll {
   display: flex;
   flex-direction: column;
   overscroll-behavior: contain;
+  overflow: hidden;
+  /* Ensure content doesn't spill out */
+}
+
+.cart-section .card {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .cart-section.open {
