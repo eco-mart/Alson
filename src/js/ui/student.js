@@ -118,12 +118,6 @@ function renderItemsHTML(items) {
          style="${isAvailable ? 'cursor: pointer;' : 'cursor: not-allowed;'}">
          
       <div class="food-card-content">
-        <div class="food-image-container">
-          ${item.image_url ?
-        `<img src="${item.image_url}" alt="${item.name}" loading="lazy" class="food-img" />` :
-        `<div class="food-icon">🍕</div>`
-      }
-        </div>
         <div class="food-info">
           <h3>${item.name}</h3>
           <p class="food-price">${formatPrice(item.price)}</p>

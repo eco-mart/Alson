@@ -14,17 +14,13 @@
     "windows": [
       {
         "label": "main",
-        "title": "One More Bite",
-        "url": "index.html",
-        "width": 800,
-        "height": 600
-      },
-      {
-        "label": "admin",
         "title": "One More Bite - Admin Dashboard",
         "url": "admin.html",
         "width": 1024,
-        "height": 768
+        "height": 768,
+        "minWidth": 400,
+        "minHeight": 600,
+        "resizable": true
       }
     ],
     "security": {

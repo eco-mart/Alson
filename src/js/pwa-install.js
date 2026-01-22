@@ -13,45 +13,67 @@ window.addEventListener('beforeinstallprompt', (e) => {
     showInstallPromotion();
 });
 
-function showInstallPromotion() {
-    // Create install button if not exists
-    if (!installButton && window.innerWidth < 768) {
-        installButton = document.createElement('button');
-        installButton.id = 'pwa-install-btn';
-        installButton.innerHTML = '📱 Install App';
-        installButton.className = 'btn btn-primary';
-        installButton.style.cssText = `
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            animation: slideIn 0.3s ease-out;
+function showInstallPromotion(mode = 'hero') {
+    // Basic check: don't show if already installed or if no prompt available
+    if (!deferredPrompt || isPWAInstalled()) return;
+
+    // Cleanup existing buttons if any
+    if (installButton) {
+        installButton.remove();
+        installButton = null;
+    }
+
+    installButton = document.createElement('div');
+    installButton.id = 'pwa-install-container';
+
+    if (mode === 'hero') {
+        installButton.className = 'pwa-hero-container';
+        installButton.innerHTML = `
+            <div class="pwa-hero-content">
+                <button class="pwa-close-btn" aria-label="Dismiss">✕</button>
+                <div class="pwa-icon">🍔</div>
+                <h2>Get the full experience</h2>
+                <p>Install "One More Bite" for faster access and a better experience.</p>
+                <button class="pwa-main-install-btn">Install App Now</button>
+            </div>
         `;
 
-        installButton.addEventListener('click', async () => {
-            if (!deferredPrompt) {
-                return;
-            }
+        installButton.querySelector('.pwa-close-btn').onclick = (e) => {
+            e.stopPropagation();
+            showInstallPromotion('corner');
+        };
 
-            // Show the install prompt
-            deferredPrompt.prompt();
+        installButton.querySelector('.pwa-main-install-btn').onclick = triggerInstall;
+    } else {
+        installButton.className = 'pwa-corner-container';
+        installButton.innerHTML = `
+            <button class="pwa-corner-btn">
+                <span class="icon">📱</span>
+                <span class="text">Install App</span>
+            </button>
+        `;
+        installButton.querySelector('.pwa-corner-btn').onclick = triggerInstall;
+    }
 
-            // Wait for the user to respond to the prompt
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(`[PWA] User response: ${outcome}`);
+    document.body.appendChild(installButton);
+}
 
-            // We've used the prompt, can't use it again
-            deferredPrompt = null;
+async function triggerInstall() {
+    if (!deferredPrompt) return;
 
-            // Hide the install button
-            if (installButton) {
-                installButton.remove();
-                installButton = null;
-            }
-        });
+    // Show the install prompt
+    deferredPrompt.prompt();
 
-        document.body.appendChild(installButton);
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`[PWA] User response: ${outcome}`);
+
+    if (outcome === 'accepted') {
+        deferredPrompt = null;
+        if (installButton) {
+            installButton.remove();
+            installButton = null;
+        }
     }
 }
 
@@ -68,18 +90,18 @@ window.addEventListener('appinstalled', () => {
     const successMsg = document.createElement('div');
     successMsg.style.cssText = `
         position: fixed;
-        top: 50%;
+        bottom: 24px;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translateX(-50%);
         background: #059669;
         color: white;
-        padding: 20px 32px;
-        border-radius: 12px;
-        font-size: 18px;
+        padding: 12px 24px;
+        border-radius: 99px;
+        font-size: 14px;
         font-weight: 600;
-        z-index: 10000;
+        z-index: 10001;
         box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        animation: fadeIn 0.3s ease-out;
+        animation: slideUp 0.3s ease-out;
     `;
     successMsg.textContent = '✅ App Installed! Check your home screen';
     document.body.appendChild(successMsg);
@@ -87,48 +109,156 @@ window.addEventListener('appinstalled', () => {
     setTimeout(() => {
         successMsg.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => successMsg.remove(), 300);
-    }, 3000);
+    }, 4000);
 });
 
 // Check if already installed
 function isPWAInstalled() {
-    // Check if running in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches ||
-        window.navigator.standalone === true) {
-        console.log('[PWA] Running as installed app');
-        return true;
-    }
-    return false;
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
-// Add CSS animations
+// Add CSS animations and styles
 const style = document.createElement('style');
 style.textContent = `
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .pwa-hero-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease-out;
     }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+
+    .pwa-hero-content {
+        background: var(--card-bg, #ffffff);
+        padding: 40px;
+        border-radius: 24px;
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        position: relative;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        animation: zoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
+
+    .pwa-close-btn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(0,0,0,0.05);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.2s;
     }
-    
-    #pwa-install-btn:hover {
+
+    .pwa-close-btn:hover {
+        background: rgba(0,0,0,0.1);
+        transform: rotate(90deg);
+    }
+
+    .pwa-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        animation: bounce 2s infinite;
+    }
+
+    .pwa-hero-content h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #1a1a1a;
+    }
+
+    .pwa-hero-content p {
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 30px;
+    }
+
+    .pwa-main-install-btn {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pwa-main-install-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .pwa-corner-container {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 9998;
+        animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .pwa-corner-btn {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,0,0,0.1);
+        padding: 8px 16px;
+        border-radius: 99px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+    }
+
+    .pwa-corner-btn:hover {
         transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4) !important;
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.15);
     }
+
+    .pwa-corner-btn .icon { font-size: 18px; }
+    .pwa-corner-btn .text { font-weight: 600; color: #1a1a1a; font-size: 14px; }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translate(-50%, 20px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 `;
 document.head.appendChild(style);
 
@@ -146,3 +276,4 @@ if (isPWAInstalled()) {
 }
 
 export { isPWAInstalled, showInstallPromotion };
+

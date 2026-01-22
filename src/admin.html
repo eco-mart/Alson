@@ -40,37 +40,82 @@
 
     <!-- Dashboard -->
     <div id="dashboard" class="screen" style="display: none;">
-      <div class="container">
-        <div class="header">
-          <div>
-            <h1>Admin Dashboard</h1>
-            <p>Manage orders &amp; menu availability</p>
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <div class="sidebar-header">
+            <div class="logo">🍽️</div>
+            <h2>Admin</h2>
           </div>
-          <button class="btn btn-ghost" id="logout-btn">🚪 Logout</button>
-        </div>
-
-        <div id="error-message" class="error-message"></div>
-
-        <div class="main-content">
-          <!-- Orders List -->
-          <div style="grid-column: 1 / -1;" id="orders-section">
-            <h2 class="category-title">Pending Orders</h2>
-            <div id="admin-orders-list" class="items-grid"></div>
+          <nav class="sidebar-nav">
+            <button class="nav-item active" data-tab="overview" id="btn-tab-overview">
+              <span class="icon">📊</span> Overview
+            </button>
+            <button class="nav-item" data-tab="live-orders" id="btn-tab-live">
+              <span class="icon">🔔</span> Live Orders
+            </button>
+            <button class="nav-item" data-tab="history" id="btn-tab-history">
+              <span class="icon">📜</span> Order History
+            </button>
+            <button class="nav-item" data-tab="menu" id="btn-tab-menu">
+              <span class="icon">🍕</span> Manage Menu
+            </button>
+          </nav>
+          <div class="sidebar-footer">
+            <button class="btn btn-ghost" id="logout-btn">🚪 Logout</button>
           </div>
+        </aside>
 
-          <!-- Food Availability Management -->
-          <div style="grid-column: 1 / -1;" id="menu-section">
-            <div class="category-header"
-              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-              <h2 class="category-title" style="margin-bottom: 0;">Menu Availability</h2>
+        <main class="admin-main">
+          <header class="admin-header">
+            <h1 id="current-tab-title">Overview</h1>
+            <div id="admin-status" class="status-indicator">
+              <span class="dot"></span> Online
+            </div>
+          </header>
+
+          <div id="error-message" class="error-message"></div>
+
+          <!-- Section: Overview -->
+          <section id="admin-section-overview" class="admin-section">
+            <div class="stats-grid">
+              <div class="stats-card">
+                <h3>Total Orders</h3>
+                <div class="value" id="stats-total-orders">0</div>
+                <div class="sub">Since start</div>
+              </div>
+              <div class="stats-card pending">
+                <h3>Pending</h3>
+                <div class="value" id="stats-pending-orders">0</div>
+                <div class="sub">Needs action</div>
+              </div>
+              <div class="stats-card revenue">
+                <h3>Today's Revenue</h3>
+                <div class="value" id="stats-revenue">Rs. 0</div>
+                <div class="sub">Estimated</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section: Live Orders -->
+          <section id="admin-section-live-orders" class="admin-section" style="display: none;">
+            <div id="admin-live-orders-list" class="order-grid"></div>
+          </section>
+
+          <!-- Section: Order History -->
+          <section id="admin-section-history" class="admin-section" style="display: none;">
+            <div id="admin-history-list" class="order-grid"></div>
+          </section>
+
+          <!-- Section: Menu Management -->
+          <section id="admin-section-menu" class="admin-section" style="display: none;">
+            <div class="category-header">
               <div class="search-container">
-                <input type="text" id="admin-search-input" placeholder="Search menu items..."
-                  style="padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid #e5e7eb; width: 250px;">
+                <input type="text" id="admin-search-input" placeholder="Search menu items...">
               </div>
             </div>
             <div id="food-grid" class="food-grid"></div>
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
   </div>

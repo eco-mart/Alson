@@ -45,12 +45,8 @@ function handleUserRedirect(user) {
         showAdminDashboard(user);
     } else {
         if (isAdmin) {
-            // Admin logged into student app? 
-            // Redirect to admin.html? Or just show admin features?
-            // User requested "Vanilla JS Frontend (ONE CODEBASE)".
-            // Let's decide based on current page.
             if (confirm('You are an admin. Go to Admin Dashboard?')) {
-                window.location.href = '/admin.html';
+                window.location.href = 'admin.html';
                 return;
             }
         }
