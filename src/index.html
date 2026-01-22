@@ -59,31 +59,9 @@
             <h1>Menu</h1>
             <p>Discover and order delicious food items.</p>
           </div>
-          <div style="display: flex; gap: 1rem;">
-            <button class="btn btn-secondary" id="my-orders-btn">
-              📋 My Orders
-            </button>
-            <button class="btn btn-ghost" id="logout-btn">
-              🚪 Logout
-            </button>
-          </div>
         </div>
 
         <div id="error-message" class="error-message"></div>
-
-        <!-- My Orders Section (Hidden by default) -->
-        <div id="my-orders-container" style="display: none; grid-column: 1 / -1; margin-bottom: 2rem;">
-          <div class="card">
-            <div class="cart-header">
-              <h2>📋 My Orders</h2>
-              <button class="btn btn-sm btn-ghost" id="close-orders-btn">Close</button>
-            </div>
-            <div id="my-orders-list" class="items-grid"
-              style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
-              <!-- Orders injected here -->
-            </div>
-          </div>
-        </div>
 
         <!-- Two Column Layout -->
         <div class="main-content">
@@ -95,7 +73,6 @@
                 <span>🔍</span>
                 <input type="text" id="search-input" placeholder="Search food items..." />
               </div>
-              <!-- Admin controls removed from here -->
             </div>
 
             <!-- Food Grid -->
@@ -132,6 +109,27 @@
 
               <div id="checkout-section" style="display: none;">
                 <!-- Checkout content injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- My Orders (Bottom Sheet on Mobile) -->
+          <div class="cart-section" id="orders-sheet">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+              <div class="cart-handle" id="orders-handle"></div>
+
+              <div class="cart-header">
+                <div>
+                  <span>📋</span>
+                  <strong>My Orders</strong>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="close-orders-btn" style="display: none;">✕</button>
+              </div>
+
+              <div id="my-orders-list" class="cart-items">
+                <div class="empty-cart">
+                  <p>No orders yet.</p>
+                </div>
               </div>
             </div>
           </div>

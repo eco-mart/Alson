@@ -1,7 +1,7 @@
 import { supabase } from '../api.js';
 import { state, addToCart } from '../state.js';
 import { showError, formatPrice } from '../utils.js';
-import { updateCartBadge, autoOpenCartOnMobile, isMobile } from '../mobile.js';
+// Functions from mobile.js are accessed via window or directly if possible
 
 // DOM Elements
 const foodGrid = document.getElementById('food-grid');
@@ -183,7 +183,7 @@ export function renderCart() {
   if (cartCount) cartCount.textContent = `${totalQty} items (${formatPrice(totalPrice)})`;
 
   // Update mobile bottom nav badge
-  updateCartBadge(totalQty);
+  if (window.updateCartBadge) window.updateCartBadge(totalQty);
 
   if (!cartItems) return; // Guard for pages without cart
 
@@ -302,6 +302,12 @@ export async function processCheckout() {
   }
 }
 
+// Global exposure for decoupled components
+window.loadUserOrders = loadUserOrders;
+
+// Listen for refresh triggers
+document.addEventListener('refresh-orders', loadUserOrders);
+
 export async function loadUserOrders() {
   if (!myOrdersList) return;
   myOrdersList.innerHTML = '<div class="loading">Loading orders...</div>';
@@ -309,6 +315,7 @@ export async function loadUserOrders() {
     .from('orders')
     .select('*, order_items(*, food_items(name))')
     .eq('user_id', state.currentUser.id)
+    .neq('status', 'cancelled')
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -385,7 +392,7 @@ window.selectItem = (id, name, price, available) => {
   renderCart();
 
   // Auto-open cart on mobile when item is added
-  autoOpenCartOnMobile();
+  if (window.autoOpenCartOnMobile) window.autoOpenCartOnMobile();
 };
 
 window.showErrorMsg = (msg) => showError(errorMessage, msg);

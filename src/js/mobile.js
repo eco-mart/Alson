@@ -1,11 +1,13 @@
 // Mobile Navigation and Bottom Sheet Controller
 
 let cartSheetOpen = false;
+let ordersSheetOpen = false;
 
 // Initialize mobile features
 export function initMobileFeatures() {
     setupBottomNavigation();
     setupBottomSheetCart();
+    setupBottomSheetOrders();
     setupBackdrop();
     updateCartBadge();
 }
@@ -21,13 +23,14 @@ function setupBottomNavigation() {
         navHome.addEventListener('click', () => {
             setActiveNav('nav-home');
             closeCart();
-            hideOrders();
+            closeOrders();
         });
     }
 
     if (navCart) {
         navCart.addEventListener('click', () => {
             setActiveNav('nav-cart');
+            closeOrders();
             toggleCart();
         });
     }
@@ -36,35 +39,12 @@ function setupBottomNavigation() {
         navOrders.addEventListener('click', () => {
             setActiveNav('nav-orders');
             closeCart();
-            showOrders();
+            toggleOrders();
         });
     }
 
     if (navLogout) {
         navLogout.addEventListener('click', async () => {
-            if (confirm('Are you sure you want to logout?')) {
-                const { logout } = await import('./auth.js');
-                await logout();
-                window.location.reload();
-            }
-        });
-    }
-
-    // Also wire up desktop buttons
-    const myOrdersBtn = document.getElementById('my-orders-btn');
-    const closeOrdersBtn = document.getElementById('close-orders-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-
-    if (myOrdersBtn) {
-        myOrdersBtn.addEventListener('click', showOrders);
-    }
-
-    if (closeOrdersBtn) {
-        closeOrdersBtn.addEventListener('click', hideOrders);
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
             if (confirm('Are you sure you want to logout?')) {
                 const { logout } = await import('./auth.js');
                 await logout();
@@ -85,21 +65,101 @@ function setActiveNav(activeId) {
     }
 }
 
-function showOrders() {
-    const myOrdersContainer = document.getElementById('my-orders-container');
-    if (myOrdersContainer) {
-        myOrdersContainer.style.display = 'block';
-        // Load orders
-        import('./ui/student.js').then(module => {
-            module.loadUserOrders();
-        });
+// Bottom Sheet Orders
+function setupBottomSheetOrders() {
+    const ordersSheet = document.getElementById('orders-sheet');
+    const closeOrdersBtn = document.getElementById('close-orders-btn');
+
+    if (closeOrdersBtn) {
+        closeOrdersBtn.addEventListener('click', closeOrders);
+    }
+
+    // Touch gestures for orders handle (swipe down to close)
+    const ordersHandle = document.getElementById('orders-handle');
+    if (ordersHandle) {
+        let startY = 0;
+        let currentY = 0;
+
+        ordersHandle.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        ordersHandle.addEventListener('touchmove', (e) => {
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+
+            // Only allow dragging down
+            if (diff > 0 && ordersSheetOpen) {
+                ordersSheet.style.transform = `translateY(${diff}px)`;
+            }
+        }, { passive: true });
+
+        ordersHandle.addEventListener('touchend', () => {
+            const diff = currentY - startY;
+
+            // If dragged down more than 100px, close the orders sheet
+            if (diff > 100) {
+                closeOrders();
+            } else {
+                // Snap back to open position
+                ordersSheet.style.transform = 'translateY(0)';
+            }
+
+            startY = 0;
+            currentY = 0;
+        }, { passive: true });
     }
 }
 
-function hideOrders() {
-    const myOrdersContainer = document.getElementById('my-orders-container');
-    if (myOrdersContainer) {
-        myOrdersContainer.style.display = 'none';
+export function openOrders() {
+    const ordersSheet = document.getElementById('orders-sheet');
+    const backdrop = document.getElementById('cart-backdrop');
+    const closeOrdersBtn = document.getElementById('close-orders-btn');
+
+    if (ordersSheet) {
+        ordersSheet.classList.add('open');
+        ordersSheetOpen = true;
+
+        // Trigger order refresh via custom event
+        document.dispatchEvent(new CustomEvent('refresh-orders'));
+    }
+
+    if (backdrop) {
+        backdrop.classList.add('show');
+    }
+
+    // Show close button on mobile
+    if (closeOrdersBtn && window.innerWidth < 768) {
+        closeOrdersBtn.style.display = 'block';
+    }
+}
+
+export function closeOrders() {
+    const ordersSheet = document.getElementById('orders-sheet');
+    const backdrop = document.getElementById('cart-backdrop');
+    const closeOrdersBtn = document.getElementById('close-orders-btn');
+
+    if (ordersSheet) {
+        ordersSheet.classList.remove('open');
+        ordersSheetOpen = false;
+        ordersSheet.style.transform = ''; // Reset any drag transform
+    }
+
+    // Only hide backdrop if cart is also closed
+    if (backdrop && !cartSheetOpen) {
+        backdrop.classList.remove('show');
+    }
+
+    if (closeOrdersBtn) {
+        closeOrdersBtn.style.display = 'none';
+    }
+}
+
+export function toggleOrders() {
+    if (ordersSheetOpen) {
+        closeOrders();
+    } else {
+        openOrders();
     }
 }
 
@@ -180,7 +240,8 @@ export function closeCart() {
         cartSheet.style.transform = ''; // Reset any drag transform
     }
 
-    if (backdrop) {
+    // Only hide backdrop if orders sheet is also closed
+    if (backdrop && !ordersSheetOpen) {
         backdrop.classList.remove('show');
     }
 
@@ -200,7 +261,10 @@ export function toggleCart() {
 function setupBackdrop() {
     const backdrop = document.getElementById('cart-backdrop');
     if (backdrop) {
-        backdrop.addEventListener('click', closeCart);
+        backdrop.addEventListener('click', () => {
+            closeCart();
+            closeOrders();
+        });
     }
 }
 
@@ -233,18 +297,25 @@ export function autoOpenCartOnMobile() {
 // Handle window resize
 window.addEventListener('resize', () => {
     const closeCartBtn = document.getElementById('close-cart-btn');
+    const closeOrdersBtn = document.getElementById('close-orders-btn');
 
-    // Hide close button on desktop
+    // Hide close buttons and sheets on desktop
     if (window.innerWidth >= 768) {
-        if (closeCartBtn) {
-            closeCartBtn.style.display = 'none';
-        }
-        // Always show cart on desktop
+        if (closeCartBtn) closeCartBtn.style.display = 'none';
+        if (closeOrdersBtn) closeOrdersBtn.style.display = 'none';
+
         const cartSheet = document.getElementById('cart-sheet');
         if (cartSheet) {
             cartSheet.classList.remove('open');
             cartSheetOpen = false;
         }
+
+        const ordersSheet = document.getElementById('orders-sheet');
+        if (ordersSheet) {
+            ordersSheet.classList.remove('open');
+            ordersSheetOpen = false;
+        }
+
         const backdrop = document.getElementById('cart-backdrop');
         if (backdrop) {
             backdrop.classList.remove('show');
@@ -256,3 +327,8 @@ window.addEventListener('resize', () => {
 window.openCart = openCart;
 window.closeCart = closeCart;
 window.toggleCart = toggleCart;
+window.openOrders = openOrders;
+window.closeOrders = closeOrders;
+window.toggleOrders = toggleOrders;
+window.autoOpenCartOnMobile = autoOpenCartOnMobile;
+window.updateCartBadge = updateCartBadge;
