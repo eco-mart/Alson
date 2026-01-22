@@ -119,6 +119,7 @@ export function openOrders() {
     if (ordersSheet) {
         ordersSheet.classList.add('open');
         ordersSheetOpen = true;
+        document.body.classList.add('no-scroll');
 
         // Trigger order refresh via custom event
         document.dispatchEvent(new CustomEvent('refresh-orders'));
@@ -143,6 +144,10 @@ export function closeOrders() {
         ordersSheet.classList.remove('open');
         ordersSheetOpen = false;
         ordersSheet.style.transform = ''; // Reset any drag transform
+
+        if (!cartSheetOpen) {
+            document.body.classList.remove('no-scroll');
+        }
     }
 
     // Only hide backdrop if cart is also closed
@@ -217,6 +222,7 @@ export function openCart() {
     if (cartSheet) {
         cartSheet.classList.add('open');
         cartSheetOpen = true;
+        document.body.classList.add('no-scroll');
     }
 
     if (backdrop) {
@@ -238,6 +244,10 @@ export function closeCart() {
         cartSheet.classList.remove('open');
         cartSheetOpen = false;
         cartSheet.style.transform = ''; // Reset any drag transform
+
+        if (!ordersSheetOpen) {
+            document.body.classList.remove('no-scroll');
+        }
     }
 
     // Only hide backdrop if orders sheet is also closed

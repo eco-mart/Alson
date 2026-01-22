@@ -84,6 +84,13 @@ body {
   overflow-x: hidden;
 }
 
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+  position: fixed;
+  width: 100%;
+}
+
 .screen {
   min-height: 100vh;
   padding-bottom: 80px;
@@ -619,6 +626,7 @@ body {
   max-height: 85vh;
   display: flex;
   flex-direction: column;
+  overscroll-behavior: contain;
 }
 
 .cart-section.open {
