@@ -1,6 +1,6 @@
 import { supabase } from '../api.js';
 import { state, addToCart } from '../state.js';
-import { showError, formatPrice } from '../utils.js';
+import { showError, formatPrice, vibrate } from '../utils.js';
 // Functions from mobile.js are accessed via window or directly if possible
 
 // DOM Elements
@@ -118,7 +118,12 @@ function renderItemsHTML(items) {
          style="${isAvailable ? 'cursor: pointer;' : 'cursor: not-allowed;'}">
          
       <div class="food-card-content">
-        <div class="food-icon">🍕</div>
+        <div class="food-image-container">
+          ${item.image_url ?
+        `<img src="${item.image_url}" alt="${item.name}" loading="lazy" class="food-img" />` :
+        `<div class="food-icon">🍕</div>`
+      }
+        </div>
         <div class="food-info">
           <h3>${item.name}</h3>
           <p class="food-price">${formatPrice(item.price)}</p>
@@ -393,6 +398,9 @@ window.selectItem = (id, name, price, available) => {
 
   // Auto-open cart on mobile when item is added
   if (window.autoOpenCartOnMobile) window.autoOpenCartOnMobile();
+
+  // Haptic feedback
+  vibrate(10);
 };
 
 window.showErrorMsg = (msg) => showError(errorMessage, msg);

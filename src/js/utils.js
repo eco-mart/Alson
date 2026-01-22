@@ -14,3 +14,9 @@ export function showError(element, message, isSuccess = false) {
         setTimeout(() => element.textContent = '', 5000);
     }
 }
+
+export function vibrate(pattern = 10) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(pattern);
+    }
+}
