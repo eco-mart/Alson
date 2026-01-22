@@ -13,9 +13,32 @@ window.addEventListener('beforeinstallprompt', (e) => {
     showInstallPromotion();
 });
 
+// Check if on iOS
+function isIOS() {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+    ].includes(navigator.platform)
+        // iPad on iOS 13 detection
+        || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+}
+
 function showInstallPromotion(mode = 'hero') {
-    // Basic check: don't show if already installed or if no prompt available
-    if (!deferredPrompt || isPWAInstalled()) return;
+    // Basic check: don't show if already installed
+    if (isPWAInstalled()) return;
+
+    // Special handling for iOS
+    if (isIOS()) {
+        showIOSInstructions();
+        return;
+    }
+
+    // Standard Android/Desktop flow
+    if (!deferredPrompt) return;
 
     // Cleanup existing buttons if any
     if (installButton) {
@@ -56,6 +79,31 @@ function showInstallPromotion(mode = 'hero') {
     }
 
     document.body.appendChild(installButton);
+}
+
+function showIOSInstructions() {
+    // Check if already showing
+    if (document.getElementById('ios-install-prompt')) return;
+
+    const iosPrompt = document.createElement('div');
+    iosPrompt.id = 'ios-install-prompt';
+    iosPrompt.className = 'ios-pwa-container';
+    iosPrompt.innerHTML = `
+        <div class="ios-pwa-content">
+            <button class="ios-close-btn">✕</button>
+            <div class="ios-icon">🤳</div>
+            <h3>Install on your iPhone</h3>
+            <p>To enjoy the full experience, add "One More Bite" to your home screen:</p>
+            <ol class="ios-steps">
+                <li>Tap the Share button <span class="ios-share-icon">⎋</span> in Safari's bottom bar.</li>
+                <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+            </ol>
+            <div class="ios-arrow">↓</div>
+        </div>
+    `;
+
+    iosPrompt.querySelector('.ios-close-btn').onclick = () => iosPrompt.remove();
+    document.body.appendChild(iosPrompt);
 }
 
 async function triggerInstall() {
@@ -237,6 +285,31 @@ style.textContent = `
     .pwa-corner-btn .icon { font-size: 18px; }
     .pwa-corner-btn .text { font-weight: 600; color: #1a1a1a; font-size: 14px; }
 
+    /* iOS Styles */
+    .ios-pwa-container {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 10000;
+        animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .ios-pwa-content { text-align: center; }
+    .ios-pwa-content h3 { margin-bottom: 8px; color: #1a1a1a; }
+    .ios-pwa-content p { color: #666; font-size: 14px; margin-bottom: 16px; }
+    .ios-steps { text-align: left; font-size: 14px; color: #444; padding-left: 20px; }
+    .ios-steps li { margin-bottom: 8px; }
+    .ios-close-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 18px; color: #999; cursor: pointer; }
+    .ios-share-icon { display: inline-block; padding: 2px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+    .ios-arrow { font-size: 24px; margin-top: 12px; animation: bounce 1.5s infinite; color: #4f46e5; }
+    .ios-icon { font-size: 40px; margin-bottom: 12px; }
+
     @keyframes bounce {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-10px); }
@@ -253,8 +326,8 @@ style.textContent = `
     }
 
     @keyframes slideUp {
-        from { opacity: 0; transform: translate(-50%, 20px); }
-        to { opacity: 1; transform: translate(-50%, 0); }
+        from { opacity: 0; transform: translateY(100px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -265,7 +338,8 @@ document.head.appendChild(style);
 // Expose to window for external use
 window.PWA = {
     isInstalled: isPWAInstalled,
-    showInstallPrompt: showInstallPromotion
+    showInstallPrompt: showInstallPromotion,
+    isIOS: isIOS
 };
 
 // Log install status on load
@@ -273,7 +347,11 @@ if (isPWAInstalled()) {
     console.log('[PWA] ✅ App is installed and running standalone');
 } else {
     console.log('[PWA] App is running in browser');
+    // For iOS, we can show instructions immediately or after a delay
+    if (isIOS()) {
+        setTimeout(() => showInstallPromotion(), 2000);
+    }
 }
 
-export { isPWAInstalled, showInstallPromotion };
+export { isPWAInstalled, showInstallPromotion, isIOS };
 
