@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-food-app",
-  "version": "0.1.0",
-  "identifier": "com.alsth.tauri-food-app",
+  "productName": "One More Bite",
+  "version": "1.0.0",
+  "identifier": "com.onemorbite.foodapp",
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
@@ -13,10 +13,10 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "One More Bite - Admin Dashboard",
-        "url": "admin.html",
-        "width": 800,
-        "height": 600
+        "title": "One More Bite",
+        "url": "index.html",
+        "width": 400,
+        "height": 800
       }
     ],
     "security": {

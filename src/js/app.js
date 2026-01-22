@@ -5,6 +5,8 @@ import { loadCart, loadFoodItems, loadUserOrders } from './ui/student.js';
 import { loadAdminOrders, loadFoodItemsAdmin, updateCardUI } from './ui/admin.js';
 import { showError, isTauri } from './utils.js';
 import { supabase } from './api.js';
+import { initMobileFeatures } from './mobile.js';
+import './pwa-install.js';  // PWA install prompt
 
 // DOM Elements
 const loginScreen = document.getElementById('login-screen');
@@ -18,6 +20,9 @@ const isAdminPage = !!document.getElementById('admin-app');
 
 // Init
 async function init() {
+    // Initialize mobile features
+    initMobileFeatures();
+
     const user = await checkSession();
 
     if (user) {

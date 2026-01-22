@@ -3,11 +3,13 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>One More Bite - Food Ordering</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="./assets/icon-192.png">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
 </head>
@@ -105,18 +107,21 @@
             </div>
           </div>
 
-          <!-- Right: Cart -->
-          <div class="cart-section">
-            <div class="card">
+          <!-- Right: Cart (Bottom Sheet on Mobile) -->
+          <div class="cart-section" id="cart-sheet">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+              <div class="cart-handle"></div>
+
               <div class="cart-header">
                 <div>
                   <span>🛒</span>
                   <strong>Your Cart</strong>
                 </div>
-                <span class="badge" id="cart-count">0 items</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <span class="badge" id="cart-count">0 items</span>
+                  <button class="btn btn-ghost btn-sm" id="close-cart-btn" style="display: none;">✕</button>
+                </div>
               </div>
-
-              <div class="divider"></div>
 
               <div id="cart-items" class="cart-items">
                 <div class="empty-cart">
@@ -126,23 +131,36 @@
               </div>
 
               <div id="checkout-section" style="display: none;">
-                <div class="divider"></div>
-
-                <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-size: 0.9rem; font-weight: 600;">Pickup Time</label>
-                  <input type="time" id="pickup-time-input" class="admin-input"
-                    style="width: 100%; border: 1px solid #ddd;" required />
-                  <small style="color: #666; font-size: 0.8rem;">When will you reach the canteen?</small>
-                </div>
-
-                <button class="btn btn-primary btn-full" id="checkout-btn">
-                  Checkout
-                </button>
+                <!-- Checkout content injected by JS -->
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Bottom Navigation (Mobile) -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" id="nav-home" aria-label="Home">
+          <span>🏠</span>
+          <span>Home</span>
+        </button>
+        <button class="nav-item" id="nav-cart" aria-label="Cart">
+          <span>🛒</span>
+          <span>Cart</span>
+          <span class="nav-badge" id="nav-cart-badge" style="display: none;">0</span>
+        </button>
+        <button class="nav-item" id="nav-orders" aria-label="Orders">
+          <span>📋</span>
+          <span>Orders</span>
+        </button>
+        <button class="nav-item" id="nav-logout" aria-label="Logout">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </nav>
+
+      <!-- Backdrop for bottom sheet -->
+      <div class="backdrop" id="cart-backdrop"></div>
     </div>
   </div>
 

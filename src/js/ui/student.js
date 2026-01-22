@@ -1,6 +1,7 @@
 import { supabase } from '../api.js';
 import { state, addToCart } from '../state.js';
 import { showError, formatPrice } from '../utils.js';
+import { updateCartBadge, autoOpenCartOnMobile, isMobile } from '../mobile.js';
 
 // DOM Elements
 const foodGrid = document.getElementById('food-grid');
@@ -165,6 +166,9 @@ export function renderCart() {
   const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   if (cartCount) cartCount.textContent = `${totalQty} items (${formatPrice(totalPrice)})`;
+
+  // Update mobile bottom nav badge
+  updateCartBadge(totalQty);
 
   if (!cartItems) return; // Guard for pages without cart
 
@@ -364,6 +368,9 @@ window.selectItem = (id, name, price, available) => {
 
   localStorage.setItem('food_app_cart_drafts', JSON.stringify(state.cart.filter(i => !i.synced)));
   renderCart();
+
+  // Auto-open cart on mobile when item is added
+  autoOpenCartOnMobile();
 };
 
 window.showErrorMsg = (msg) => showError(errorMessage, msg);
