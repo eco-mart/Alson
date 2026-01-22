@@ -131,6 +131,23 @@ if (signupBtn) {
     });
 }
 
+const myOrdersBtn = document.getElementById('my-orders-btn');
+const closeOrdersBtn = document.getElementById('close-orders-btn');
+const myOrdersContainer = document.getElementById('my-orders-container');
+
+if (myOrdersBtn && myOrdersContainer) {
+    myOrdersBtn.addEventListener('click', () => {
+        myOrdersContainer.style.display = 'block';
+        loadUserOrders();
+    });
+}
+
+if (closeOrdersBtn && myOrdersContainer) {
+    closeOrdersBtn.addEventListener('click', () => {
+        myOrdersContainer.style.display = 'none';
+    });
+}
+
 // Realtime Setup
 function setupStudentRealtime(userId) {
     supabase.channel('public:orders')
