@@ -1,0 +1,179 @@
+/* Cart Item Styles */
+.cart-item {
+    transition: background-color 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.cart-item.draft {
+    background-color: #ffffff;
+    /* White for draft */
+    border-left: 4px solid #9ca3af;
+    /* Grey indicator */
+}
+
+.cart-item.synced {
+    background-color: #dcfce7;
+    /* Green for synced (db) */
+    border-left: 4px solid #22c55e;
+    /* Green indicator */
+}
+
+/* Unavailable Item Styles */
+.food-card.unavailable {
+    opacity: 0.6;
+    background-color: #f3f4f6;
+    position: relative;
+    cursor: not-allowed;
+}
+
+.food-card.unavailable::after {
+    content: "Unavailable";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Admin Toggle Button */
+.toggle-availability-btn {
+    margin-top: 0.5rem;
+    width: 100%;
+    padding: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.toggle-availability-btn.active {
+    background-color: #ef4444;
+    /* Red for 'Make Unavailable' action */
+    color: white;
+}
+
+.toggle-availability-btn.inactive {
+    background-color: #22c55e;
+    /* Green for 'Make Available' action */
+    color: white;
+}
+
+/* Admin Orders Section */
+#admin-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.order-card {
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    border-radius: 8px;
+    background: white;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+/* Order Card (Client) */
+.order-card-client {
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    border-radius: 8px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.order-header-client {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 0.5rem;
+}
+
+.order-items-compact {
+    font-size: 0.9rem;
+    color: #4b5563;
+    background: #f9fafb;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.order-status.pending {
+    color: #f59e0b;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #fffbeb;
+}
+
+.order-status.confirmed {
+    color: #2563eb;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #eff6ff;
+}
+
+.order-status.completed {
+    color: #10b981;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #ecfdf5;
+}
+
+.order-status.cancelled {
+    color: #ef4444;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #fef2f2;
+}
+
+/* Button variants for order actions */
+.btn-success {
+    background-color: #10b981 !important;
+    color: white !important;
+    cursor: pointer;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.btn-success:hover {
+    background-color: #059669 !important;
+}
+
+.btn-error {
+    background-color: #ef4444 !important;
+    color: white !important;
+    cursor: pointer;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.btn-error:hover {
+    background-color: #dc2626 !important;
+}
+
+.order-actions {
+    margin-top: 1rem;
+}

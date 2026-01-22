@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#4f46e5">
+  <title>One More Bite - Food Ordering</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="icon">🍕</div>
+          <h1>Welcome Back</h1>
+          <p>Sign in to order your favorite meals</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="student-id" placeholder="e.g. NP123456" required />
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required />
+          </div>
+
+          <div id="login-error" class="error-message"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="login-btn" aria-label="Sign in">
+              Sign In
+            </button>
+            <button type="button" class="btn btn-outline" id="signup-btn" aria-label="Create account">
+              Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Screen -->
+    <div id="main-screen" class="screen" style="display: none;">
+      <div class="container">
+        <!-- Header -->
+        <div class="header">
+          <div>
+            <h1>Menu</h1>
+            <p>Discover and order delicious food items.</p>
+          </div>
+          <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-secondary" id="my-orders-btn">
+              📋 My Orders
+            </button>
+            <button class="btn btn-ghost" id="logout-btn">
+              🚪 Logout
+            </button>
+          </div>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <!-- My Orders Section (Hidden by default) -->
+        <div id="my-orders-container" style="display: none; grid-column: 1 / -1; margin-bottom: 2rem;">
+          <div class="card">
+            <div class="cart-header">
+              <h2>📋 My Orders</h2>
+              <button class="btn btn-sm btn-ghost" id="close-orders-btn">Close</button>
+            </div>
+            <div id="my-orders-list" class="items-grid"
+              style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+              <!-- Orders injected here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="main-content">
+          <!-- Left: Food Items -->
+          <div class="food-section">
+            <!-- Search & Admin Controls -->
+            <div class="search-bar card">
+              <div class="search-input">
+                <span>🔍</span>
+                <input type="text" id="search-input" placeholder="Search food items..." />
+              </div>
+              <!-- Admin controls removed from here -->
+            </div>
+
+            <!-- Food Grid -->
+            <div id="food-grid" class="food-grid">
+              <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading menu...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Cart -->
+          <div class="cart-section">
+            <div class="card">
+              <div class="cart-header">
+                <div>
+                  <span>🛒</span>
+                  <strong>Your Cart</strong>
+                </div>
+                <span class="badge" id="cart-count">0 items</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <div id="cart-items" class="cart-items">
+                <div class="empty-cart">
+                  <p>Your cart is empty.</p>
+                  <small>Add items to get started!</small>
+                </div>
+              </div>
+
+              <div id="checkout-section" style="display: none;">
+                <div class="divider"></div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                  <label style="font-size: 0.9rem; font-weight: 600;">Pickup Time</label>
+                  <input type="time" id="pickup-time-input" class="admin-input"
+                    style="width: 100%; border: 1px solid #ddd;" required />
+                  <small style="color: #666; font-size: 0.8rem;">When will you reach the canteen?</small>
+                </div>
+
+                <button class="btn btn-primary btn-full" id="checkout-btn">
+                  Checkout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalhost) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+            console.log('SW Unregistered on localhost');
+          }
+        });
+      } else {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(reg => console.log('SW Registered'))
+            .catch(err => console.log('SW Failed', err));
+        });
+      }
+    }
+  </script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+
+</html>
