@@ -2,7 +2,7 @@
     "name": "One More Bite - Food Ordering",
     "short_name": "OneMoreBite",
     "description": "Pre-order your favorite meals from the canteen",
-    "start_url": "./index.html",
+    "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#4f46e5",
@@ -10,13 +10,13 @@
     "scope": "/",
     "icons": [
         {
-            "src": "./assets/icon-192.png",
+            "src": "/assets/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "./assets/icon-512.png",
+            "src": "/assets/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"

@@ -1,29 +1,19 @@
-const CACHE_NAME = 'one-more-bite-v2';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'one-more-bite-v3';
+const SHELL_ASSETS = [
     '/',
     '/index.html',
-    '/css/styles.css',
-    '/css/css_updates.css',
-    '/js/app.js',
-    '/js/mobile.js',
-    '/js/api.js',
-    '/js/auth.js',
-    '/js/state.js',
-    '/js/utils.js',
-    '/js/ui/student.js',
-    '/js/ui/admin.js',
     '/manifest.json',
     '/assets/icon-192.png',
     '/assets/icon-512.png'
 ];
 
-// Install Event - Cache Assets
+// Install Event - Cache App Shell
 self.addEventListener('install', (event) => {
     console.log('[ServiceWorker] Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[ServiceWorker] Caching app shell');
-            return cache.addAll(ASSETS_TO_CACHE).catch(err => {
+            return cache.addAll(SHELL_ASSETS).catch(err => {
                 console.warn('[ServiceWorker] Some assets failed to cache:', err);
             });
         })
@@ -49,64 +39,54 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch Event - Network First for API, Cache First for Assets
+// Fetch Event - Stale-while-revalidate for assets, Network-first for API
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
     // Skip non-GET requests
-    if (event.request.method !== 'GET') {
-        return;
-    }
+    if (event.request.method !== 'GET') return;
 
     // API or Realtime requests -> Network Only
     if (url.hostname.includes('supabase') ||
         url.pathname.includes('/rest/v1/') ||
         url.pathname.includes('/auth/v1/') ||
         url.pathname.includes('realtime')) {
-        return; // Let browser handle it (Network only)
+        return;
     }
 
-    // Navigation requests -> Network First, fall back to cache
+    // Navigation requests (HTML) -> Network First, fall back to cache
     if (event.request.mode === 'navigate') {
         event.respondWith(
             fetch(event.request)
                 .then(response => {
-                    // Clone and cache the response
                     const responseToCache = response.clone();
                     caches.open(CACHE_NAME).then(cache => {
                         cache.put(event.request, responseToCache);
                     });
                     return response;
                 })
-                .catch(() => {
-                    // Offline - return cached index.html
-                    return caches.match('/index.html');
-                })
+                .catch(() => caches.match('/index.html'))
         );
         return;
     }
 
-    // Assets -> Cache First, fall back to Network
+    // Static Assets (JS, CSS, Images) -> Cache First (Stale-while-revalidate)
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            if (response) {
-                return response;
-            }
-
-            return fetch(event.request).then(fetchResponse => {
-                // Don't cache if not successful
-                if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type === 'opaque') {
-                    return fetchResponse;
+        caches.match(event.request).then((cachedResponse) => {
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const responseToCache = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
                 }
-
-                // Clone and cache for future
-                const responseToCache = fetchResponse.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.put(event.request, responseToCache);
-                });
-
-                return fetchResponse;
+                return networkResponse;
+            }).catch(() => {
+                // Return cached response if network fails
+                return cachedResponse;
             });
+
+            return cachedResponse || fetchPromise;
         })
     );
 });
