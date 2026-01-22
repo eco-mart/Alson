@@ -11,9 +11,24 @@ const checkoutSection = document.getElementById('checkout-section');
 const myOrdersContainer = document.getElementById('my-orders-container');
 const myOrdersList = document.getElementById('my-orders-list');
 const errorMessage = document.getElementById('error-message');
+const searchInput = document.getElementById('search-input');
 
 let countdownInterval;
 const loadedCounts = {};
+let searchTimeout;
+
+// Search Event Listener
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.trim();
+
+    // Debounce search - wait 300ms after user stops typing
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      loadFoodItems(searchTerm);
+    }, 300);
+  });
+}
 
 // --- Menu Functions ---
 
